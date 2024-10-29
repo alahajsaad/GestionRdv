@@ -16,7 +16,7 @@ import java.util.List;
 public class RdvController {
     private final IServiceRdv iServiceRdv ;
     @PostMapping("add")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     public Object add(@RequestBody Rdv rdv) {
         return iServiceRdv.AddRdv(rdv) ;
     }

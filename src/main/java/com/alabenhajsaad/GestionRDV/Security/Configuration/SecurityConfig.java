@@ -1,10 +1,15 @@
-package com.alabenhajsaad.GestionRDV.Security;
+package com.alabenhajsaad.GestionRDV.Security.Configuration;
 
 
+import com.alabenhajsaad.GestionRDV.Security.Services.UserDetailsServiceImp;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,24 +17,33 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final UserDetailsServiceImp userDetailsServiceImp ;
     @Value("${jwt.secret}")
     private String secretKey ;
-    @Bean
+   /* @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(){
         UserDetails user1 = User.withUsername("user1").password(passwordEncoder().encode("12345")).authorities("USER").build() ;
         UserDetails admin = User.withUsername("admin").password(passwordEncoder().encode("admin")).authorities("ADMIN","USER").build() ;
         return new InMemoryUserDetailsManager(user1 , admin) ;
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -43,11 +57,32 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(ar -> ar
-                        .requestMatchers("api/medecin/all","/swagger-ui/**","/v3/api-docs/**" ).permitAll()
+                        .requestMatchers("api/medecin/all","/auth/login","/swagger-ui/**","/v3/api-docs/**" ,"/api/auth/**" ,"/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
+                //.httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer(oa -> oa.jwt(Customizer.withDefaults()))
+                .userDetailsService(userDetailsServiceImp)
                 .build() ;
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(){
+        return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey.getBytes())) ;
+    }
+
+    @Bean
+    JwtDecoder jwtDecoder(){
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes() , "RSA");
+        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        return new ProviderManager(daoAuthenticationProvider) ;
     }
 
 

@@ -15,7 +15,7 @@ public class MedecinController{
     private final IServiceMedecin iServiceMedecin ;
 
     @PostMapping("add")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     public Medecin AddMedecin(@RequestBody Medecin M) {
         return iServiceMedecin.AddMedecin(M);
     }

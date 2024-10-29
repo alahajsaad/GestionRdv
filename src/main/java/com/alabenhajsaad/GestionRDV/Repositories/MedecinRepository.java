@@ -1,4 +1,4 @@
-package com.alabenhajsaad.GestionRDV.Repository;
+package com.alabenhajsaad.GestionRDV.Repositories;
 
 import com.alabenhajsaad.GestionRDV.Entities.Medecin;
 import org.springframework.data.jpa.repository.JpaRepository;

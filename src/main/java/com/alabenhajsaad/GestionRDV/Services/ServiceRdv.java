@@ -1,7 +1,7 @@
 package com.alabenhajsaad.GestionRDV.Services;
 
 import com.alabenhajsaad.GestionRDV.Entities.Rdv;
-import com.alabenhajsaad.GestionRDV.Repository.RdvRepository;
+import com.alabenhajsaad.GestionRDV.Repositories.RdvRepository;
 import com.alabenhajsaad.GestionRDV.Services.IService.IServiceRdv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

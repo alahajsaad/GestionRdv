@@ -1,7 +1,7 @@
 package com.alabenhajsaad.GestionRDV.Services;
 
 import com.alabenhajsaad.GestionRDV.Entities.Medecin;
-import com.alabenhajsaad.GestionRDV.Repository.MedecinRepository;
+import com.alabenhajsaad.GestionRDV.Repositories.MedecinRepository;
 import com.alabenhajsaad.GestionRDV.Services.IService.IServiceMedecin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
